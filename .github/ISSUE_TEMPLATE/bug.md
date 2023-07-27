@@ -2,7 +2,7 @@
 name: Bug
 about: 버그 내용을 입력해주세요!
 title: "[Bug]"
-labels: bug
+labels: bug, enhancement
 assignees: ''
 
 ---
