@@ -1,8 +1,8 @@
 ---
-name: "Survey"
+name: Survey
 about: 조사할 내용을 입력해주세요
 title: "[Survey]"
-labels: documentation
+labels: "\U0001F4C4 docs"
 assignees: ''
 
 ---
