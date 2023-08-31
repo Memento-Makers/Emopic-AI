@@ -12,6 +12,8 @@ import torch.utils.data.distributed
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
+from PIL.ExifTags import TAGS
 sys.path.append("/content/drive/MyDrive/ExpansionNet_v2")
 sys.path.append("/content/drive/MyDrive/ML_Decoder")
 from argparse import Namespace
@@ -59,7 +61,6 @@ def root():
 @app.post("/classification")
 def classification(item:classification_in):
     
-    print("hi")
     args = argparse.Namespace(
       num_classes = item.num_classes,
       model_path = item.model_path,
@@ -80,7 +81,6 @@ def classification(item:classification_in):
     # parsing args
     #args = parser.parse_args()
 
-    print(args)
     # Setup model
     print('creating model {}...'.format(args.model_name))
     model = create_model(args, load_head=True).cuda()
@@ -111,6 +111,16 @@ def classification(item:classification_in):
     output = torch.squeeze(torch.sigmoid(model(tensor_batch)))
     np_output = output.cpu().detach().numpy()
 
+    img_info = im.getexif()
+
+    if img_info:
+        for tag_id in img_info:
+            tag = TAGS.get(tag_id, tag_id)
+            data = img_info.get(tag_id)
+            if tag == 'DateTime' or tag =='DateTimeOriginal':
+                dateTime = data
+    else:
+        dateTime = ""
 
     ## Top-k predictions
     # detected_classes = classes_list[np_output > args.th]
@@ -121,12 +131,7 @@ def classification(item:classification_in):
     detected_classes = detected_classes[idx_th]
     print('done\n')
 
-    # displaying image
-    print('showing image on screen...')
-    fig = plt.figure()
-    plt.imshow(im)
-    plt.axis('off')
-    plt.axis('tight')
+    
     # plt.rcParams["axes.titlesize"] = 10
     plt.title("detected classes: {}".format(detected_classes))
 
@@ -139,6 +144,7 @@ def classification(item:classification_in):
     print(type(detected_classes))
 
     result["categories"] = detected_classes
+    result["dateTime"] = dateTime
 
     json_compatible_item_data = jsonable_encoder(result)
     return JSONResponse(content=json_compatible_item_data)
