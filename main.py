@@ -14,8 +14,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from PIL.ExifTags import TAGS
-sys.path.append("/content/drive/MyDrive/ExpansionNet_v2")
-sys.path.append("/content/drive/MyDrive/ML_Decoder")
+
+sys.path.append("/content/drive/MyDrive/Emopic-AI/ExpansionNet_v2")
+sys.path.append("/content/drive/MyDrive/Emopic-AI/ML_Decoder")
 from argparse import Namespace
 # ML_Decoder
 from src_files.helper_functions.bn_fusion import fuse_bn_recursively
@@ -23,7 +24,7 @@ from src_files.models import create_model
 from src_files.models.tresnet.tresnet import InplacABN_to_ABN
 from PIL import Image
 
-# ExpansionNet_v2 
+# ExpansionNet_v2
 from utils.image_utils import preprocess_image
 from models.End_ExpansionNet_v2 import End_ExpansionNet_v2
 from utils.language_utils import tokens2description
@@ -35,12 +36,20 @@ from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
+gpuDevice = "cuda" if torch.cuda.is_available() else "cpu"
+captioinModel = torch.load('./ExpansionNet_v2/checkpoint/rf_model.pth', map_location=gpuDevice)
+with open('./ExpansionNet_v2/demo_material/demo_coco_tokens.pickle', 'rb') as f:
+            coco_tokens = pickle.load(f)
+            sos_idx = coco_tokens['word2idx_dict'][coco_tokens['sos_str']]
+            eos_idx = coco_tokens['word2idx_dict'][coco_tokens['eos_str']]
+classificationModel = torch.load('/content/drive/MyDrive/Emopic-AI/ML_Decoder/models/tresnet_m_open_images_200_groups_86_8.pth', map_location='cpu')
+classificationClassesList = np.array(list(classificationModel['idx_to_class'].values()))
 class caption_in(BaseModel):
     url: str = ""
 
 class classification_in(BaseModel):
      num_classes : int = 9605
-     model_path : str = '/content/drive/MyDrive/ML_Decoder/models/tresnet_m_open_images_200_groups_86_8.pth'
+     model_path : str = '/content/drive/MyDrive/Emopic-AI/ML_Decoder/models/tresnet_m_open_images_200_groups_86_8.pth'
      pic_path : str = ""
      model_name : str = 'tresnet_m'
      image_size : int = 448
@@ -60,7 +69,7 @@ def root():
 
 @app.post("/classification")
 def classification(item:classification_in):
-    
+
     args = argparse.Namespace(
       num_classes = item.num_classes,
       model_path = item.model_path,
@@ -75,7 +84,7 @@ def classification(item:classification_in):
       decoder_embedding = item.decoder_embedding,
       zsl = item.zsl,
     )
-    
+
     print('Inference code on a single image')
 
     # parsing args
@@ -84,8 +93,8 @@ def classification(item:classification_in):
     # Setup model
     print('creating model {}...'.format(args.model_name))
     model = create_model(args, load_head=True).cuda()
-    state = torch.load(args.model_path, map_location='cpu')
-    model.load_state_dict(state['model'], strict=True)
+    #state = torch.load(args.model_path, map_location='cpu')
+    model.load_state_dict(classificationModel['model'], strict=True)
     ########### eliminate BN for faster inference ###########
     model = model.cpu()
     model = InplacABN_to_ABN(model)
@@ -95,11 +104,11 @@ def classification(item:classification_in):
     print('done')
 
 
-    classes_list = np.array(list(state['idx_to_class'].values()))
+    #classes_list = np.array(list(classificationModel['idx_to_class'].values()))
     print('done\n')
 
     result = {}
-    
+
     # doing inference
     print('loading image and doing inference...')
     #im = Image.open(args.pic_path)
@@ -125,13 +134,18 @@ def classification(item:classification_in):
     ## Top-k predictions
     # detected_classes = classes_list[np_output > args.th]
     idx_sort = np.argsort(-np_output)
-    detected_classes = np.array(classes_list)[idx_sort][: args.top_k]
+    detected_classes = np.array(classificationClassesList)[idx_sort][: args.top_k]
     scores = np_output[idx_sort][: args.top_k]
     idx_th = scores > args.th
     detected_classes = detected_classes[idx_th]
     print('done\n')
 
-    
+    # displaying image
+    print('showing image on screen...')
+    fig = plt.figure()
+    plt.imshow(im)
+    plt.axis('off')
+    plt.axis('tight')
     # plt.rcParams["axes.titlesize"] = 10
     plt.title("detected classes: {}".format(detected_classes))
 
@@ -166,10 +180,11 @@ def captioning(item:caption_in):
                         drop_args=drop_args)
     img_size = 384
 
-    with open('./ExpansionNet_v2/demo_material/demo_coco_tokens.pickle', 'rb') as f:
-            coco_tokens = pickle.load(f)
-            sos_idx = coco_tokens['word2idx_dict'][coco_tokens['sos_str']]
-            eos_idx = coco_tokens['word2idx_dict'][coco_tokens['eos_str']]
+
+#    with open('./ExpansionNet_v2/demo_material/demo_coco_tokens.pickle', 'rb') as f:
+#            coco_tokens = pickle.load(f)
+#            sos_idx = coco_tokens['word2idx_dict'][coco_tokens['sos_str']]
+#            eos_idx = coco_tokens['word2idx_dict'][coco_tokens['eos_str']]
 
 
     model = End_ExpansionNet_v2(swin_img_size=img_size, swin_patch_size=4, swin_in_chans=3,
@@ -189,9 +204,9 @@ def captioning(item:caption_in):
                                     max_seq_len=74, drop_args=model_args.drop_args,
                                     rank='cpu')
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    checkpoint = torch.load('./ExpansionNet_v2/checkpoint/rf_model.pth', map_location=device)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    #device = "cuda" if torch.cuda.is_available() else "cpu"
+    #checkpoint = torch.load('./ExpansionNet_v2/checkpoint/rf_model.pth', map_location=device)
+    model.load_state_dict(captioinModel['model_state_dict'])
     
     print("Model loaded ...")
     #image_paths = ["./ExpansionNet_v2/demo_material/cat_girl.jpg"]
