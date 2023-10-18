@@ -15,7 +15,7 @@ import numpy as np
 import nest_asyncio
 from PIL import Image
 
-sys.path.append("/home/ubuntu/captioning")
+sys.path.append("")
 
 from argparse import Namespace
 
@@ -32,9 +32,9 @@ from fastapi.encoders import jsonable_encoder
 from typing import List, Optional
 from pydantic import BaseModel
 
-captionModelPath = '/home/ubuntu/captioning/trained_models/rf_model.pth'
+captionModelPath = ''
 
-with open('/home/ubuntu/captioning/demo_material/demo_coco_tokens.pickle', 'rb') as f:
+with open('', 'rb') as f:
     coco_tokens = pickle.load(f)
     sos_idx = coco_tokens['word2idx_dict'][coco_tokens['sos_str']]
     eos_idx = coco_tokens['word2idx_dict'][coco_tokens['eos_str']]
