@@ -1,4 +1,6 @@
 # Emopic-AI
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMemento-Makers%2FEmopic-AI.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FMemento-Makers%2FEmopic-AI?ref=badge_shield)
+
 
 ExpansionNet_v2 model : https://drive.google.com/drive/folders/18a4b3kWi4BVeKE5ds9trFkA_WuVCDd8U 의, rf_model.pth , xe_model.pth
 
@@ -8,3 +10,7 @@ ML_Decoder model : https://drive.google.com/drive/folders/1zaOFagNjm48lJp-6A1-zA
 # 수정사항
 서버 올릴 시 main.py 의 15,16 번째 줄 sys.path 경로 변경 해야함.
 41번째 줄 model_path 도 해당 model을 다운받은 경로로 변경 해야함.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMemento-Makers%2FEmopic-AI.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMemento-Makers%2FEmopic-AI?ref=badge_large)
