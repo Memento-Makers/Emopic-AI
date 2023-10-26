@@ -17,9 +17,9 @@ sys.path.append("")
 from argparse import Namespace
 
 # classification
-from src_files.models.tresnet.tresnet import InplacABN_to_ABN
-from src_files.models import create_model
-from src_files.helper_functions.bn_fusion import fuse_bn_recursively
+from models.tresnet.tresnet import InplacABN_to_ABN
+from models import create_model
+from helper_functions.bn_fusion import fuse_bn_recursively
 
 # fast api
 from fastapi.responses import HTMLResponse
@@ -38,19 +38,6 @@ class classification_in(BaseModel):
     pic_path: str = ""
 
 def loadClassificationModel():
-#    model_args = Namespace(
-#        num_classes=9605,
-#        model_path=classificationModelPath,
-#        model_name='tresnet_m',
-#        image_size=448,
-#        dataset_type='MS-COCO',
-#        th=0.97,
-#        top_k=3,
-#        use_ml_decoder=1,
-#        num_of_groups=200,
-#        decoder_embedding=768,
-#        zsl=0
-#    )
     model_args = Namespace(
         num_classes=80,
         model_path=coco_classificationModelPath,
