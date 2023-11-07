@@ -1,6 +1,15 @@
 # Emopic-AI
 Emopic-AI 저장소에는 Emopic 프로젝트에 사용되는 Multi-Label Classification Model과 Captioning 모델을 serving 하는 코드가 작성되어 있습니다. 
 
+## Table Of content
+
+- [기술 스택](#기술-스택)
+- [준비 하기](#준비하기)
+- [실행 하기](#실행하기)
+- [참고사이트](#참고-사이트)
+- [기여 하기](#기여하기)
+
+
 ## 기술 스택
 
 ### 언어 
@@ -18,7 +27,7 @@ Emopic-AI 저장소에는 Emopic 프로젝트에 사용되는 Multi-Label Classi
 ![docker](https://img.shields.io/badge/docker-blue)
 ![docker-compose](https://img.shields.io/badge/docker_compose-3.8-blue)
 
-## 시작하기
+## 준비하기
 
 - 서버를 시작하기전에 [훈련된 모델](#참고-사이트)이 필요합니다. 모델들을 다운받거나 참고사이트를 확인해 훈련시켜주세요.
 
@@ -27,6 +36,8 @@ Emopic-AI 저장소에는 Emopic 프로젝트에 사용되는 Multi-Label Classi
 ### Image docker
 - Emopic AI는 미리 만들어진 docker-image를 제공합니다
     - [pre-build-image](https://hub.docker.com/r/emopic/ai-serving)
+
+## 실행하기
 
 ### Build docker
 
@@ -43,7 +54,6 @@ $ docker build -t {image-name} \
 
 - 필요한 소스코드는 docker-compose의 volume을 이용해 컨테이너 안으로 넣습니다. 그래서 컨테이너를 띄운 뒤에도 소스코드를 수정할 수 있습니다.
 
-### 실행하기
 
 #### 1. 레포지토리 클론 
 ```shell 
@@ -85,3 +95,4 @@ docker compose up -d
     - [pretrained model](https://drive.google.com/drive/folders/1bBMH4-Fw1LcQZmSzkMCqpEl0piIP88Y3)
     - https://github.com/jchenghu/ExpansionNet_v2
 
+## [기여하기](docs/contribute.md)
