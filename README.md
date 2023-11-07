@@ -39,11 +39,11 @@ $ docker build -t {image-name} \
     --build-args PYTHON_VER=38
 ```
 
-### Compose docker 
+### Docker Compose
 
 - 필요한 소스코드는 docker-compose의 volume을 이용해 컨테이너 안으로 넣습니다. 그래서 컨테이너를 띄운 뒤에도 소스코드를 수정할 수 있습니다.
 
-### 로컬에서 실행하기
+### 실행하기
 
 #### 1. 레포지토리 클론 
 ```shell 
