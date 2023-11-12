@@ -1,0 +1,178 @@
+services:
+  redis-queue: #Redis
+    container_name: redis-queue
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      ai_serving:
+  router: # Main Router
+    container_name: router
+    image: emopic/deploy-python
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./log/router:/app/log
+    ports:
+      - 8000:8000
+    command:
+      - bash
+      - -c
+      - uvicorn src.main:app --host 0.0.0.0 --port 8000 --log-config src/log/log.ini
+    depends_on:
+      - redis-queue
+    networks:
+      ai_serving:
+  caption-client: # Main <-> caption server
+    container_name: caption-client
+    image: emopic/deploy-python
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./log/caption-client:/app/log
+    ports:
+      - 8100:8100
+    command:
+      - bash
+      - -c
+      - python -m src.inference.caption
+    depends_on:
+      - redis-queue
+      - caption-server
+    networks:
+      ai_serving:
+  class-client: # Main <-> classification server
+    container_name: class-client
+    image: emopic/deploy-python
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./log/class-client:/app/log
+    ports:
+      - 8200:8200
+    command:
+      - bash
+      - -c
+      - python -m src.inference.classification
+    depends_on:
+      - redis-queue
+      - class-server
+    networks:
+      ai_serving:
+
+  mysql-class-client: # Main <-> mysql
+    container_name: mysql-class-client
+    image: emopic/deploy-python
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./log/mysql-class-client:/app/log
+    ports:
+      - 8300:8300
+    command:
+      - bash
+      - -c
+      - python -m src.database.classification
+    depends_on:
+      - redis-queue
+    networks:
+      ai_serving:
+
+  mysql-caption-client: # Main <-> mysql
+    container_name: mysql-caption-client
+    image: emopic/deploy-python
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./log/mysql-caption-client:/app/log
+    ports:
+      - 8400:8400
+    command:
+      - bash
+      - -c
+      - python -m src.database.caption
+    depends_on:
+      - redis-queue
+    networks:
+      ai_serving:
+  caption-server:
+    container_name: caption-server
+    image: emopic/ai-serving-internal
+    volumes:
+      - ./caption:/app
+      - ./config:/app/config
+      - ./log/caption-server:/app/log
+      - ./caption/resources:/app/resources
+    ports:
+      - 8500:8500
+    command:
+      - bash
+      - -c
+      - python3 -m main
+    networks:
+      ai_serving:
+  class-server:
+    container_name: class-server
+    image: emopic/ai-serving-internal
+    volumes:
+      - ./config:/app/config
+      - ./classification:/app
+      - ./log/class-server:/app/log
+      - ./classification/resources:/app/resources
+    ports:
+      - 8600:8600
+    command:
+      - bash
+      - -c
+      - pip install inplace-abn && python3 -m main
+    networks:
+      ai_serving:
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./log/nginx:/var/log/nginx
+      - /etc/letsencrypt:/etc/letsencrypt
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - router
+    networks:
+      ai_serving:
+networks:
+  ai_serving:
+  # without ai-server
+  # caption-server: 
+  #   container_name: caption-server
+  #   image: emopic/deploy-python
+  #   volumes:
+  #     - ./config:/app/config
+  #     - ./models:/app/models
+  #     - ./caption:/app/caption
+  #   ports:
+  #     - 8500:8500
+  #   command:
+  #     - bash
+  #     - -c
+  #     - python -m models.caption_server
+  #   networks:
+  #     ai_serving:
+
+  # class-server: # classificaiotn-server
+  #   container_name: class-server
+  #   image: emopic/deploy-python
+  #   volumes:
+  #     - ./config:/app/config
+  #     - ./models:/app/models
+  #     - ./classification:/app/classification
+  #   ports:
+  #     - 8600:8600
+  #   command:
+  #     - bash
+  #     - -c
+  #     - python -m models.class_server
+  #   networks:
+  #     ai_serving:
+ 
