@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service Inference {
+	rpc getResult(InferenceRequest) returns (InferenceResponse);
+}
+
+message InferenceRequest {
+	string url = 1;
+}
+
+message InferenceResponse {
+	string result = 1;
+}
