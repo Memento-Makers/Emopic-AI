@@ -1,0 +1,16 @@
+[2023-11-12 07:31:02,741.741] INFO [281473548337184] - Started server process [1]
+[2023-11-12 07:31:02,742.742] INFO [281473548337184] - Waiting for application startup.
+[2023-11-12 07:31:02,743.743] INFO [281473548337184] - Application startup complete.
+[2023-11-12 07:31:02,743.743] INFO [281473548337184] - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+[2023-11-12 07:33:36,980.980] INFO [281473548337184] - 172.20.0.1:46568 - "POST /captioning HTTP/1.1" 204
+[2023-11-12 07:33:36,981.981] INFO [281473548337184] - 172.20.0.1:46584 - "POST /classification HTTP/1.1" 204
+[2023-11-12 07:33:36,982.982] INFO [281473491243424] - register job: 1669_job in src.photo.redis_task
+[2023-11-12 07:33:36,983.983] INFO [281473499697568] - register job: 1669_job in src.photo.redis_task
+[2023-11-12 07:33:36,988.988] INFO [281473499697568] - completed register job: 1669_job in src.photo.redis_task
+[2023-11-12 07:33:36,988.988] INFO [281473491243424] - completed register job: 1669_job in src.photo.redis_task
+[2023-11-12 07:33:37,805.805] INFO [281473548337184] - 172.20.0.1:46584 - "POST /captioning HTTP/1.1" 204
+[2023-11-12 07:33:37,807.807] INFO [281473548337184] - 172.20.0.1:46568 - "POST /classification HTTP/1.1" 204
+[2023-11-12 07:33:37,812.812] INFO [281473491243424] - register job: 1670_job in src.photo.redis_task
+[2023-11-12 07:33:37,813.813] INFO [281473499697568] - register job: 1670_job in src.photo.redis_task
+[2023-11-12 07:33:37,831.831] INFO [281473491243424] - completed register job: 1670_job in src.photo.redis_task
+[2023-11-12 07:33:37,831.831] INFO [281473499697568] - completed register job: 1670_job in src.photo.redis_task

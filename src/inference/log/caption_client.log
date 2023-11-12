@@ -1,0 +1,4 @@
+2023-11-12 07:33:37,038 src.inference.inference_client INFO predict job_key: 1669_job, type: caption
+2023-11-12 07:33:37,053 src.inference.inference_client INFO 1669_job is success! pred : this is response 
+2023-11-12 07:33:38,055 src.inference.inference_client INFO predict job_key: 1670_job, type: caption
+2023-11-12 07:33:38,066 src.inference.inference_client INFO 1670_job is success! pred : this is response 

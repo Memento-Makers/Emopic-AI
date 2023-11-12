@@ -1,0 +1,7 @@
+python-dotenv
+fastapi
+grpcio
+grpcio-tools
+redis
+uvicorn
+nest-asynico
