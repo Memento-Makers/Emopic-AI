@@ -22,7 +22,7 @@ class InferenceClient:
         self.mysql_manager = mysql_manager
         self.prediction = default_prediction
         if job_manager.type == Constants.caption_type:
-            self.process_num = ProcessConfig.caption_process_num 
+            self.process_num = ProcessConfig.caption_process_num
             self.model_host = ModelConfig.caption_model_host
             self.model_port = ModelConfig.caption_model_port
             self.translate_bool = True
@@ -33,7 +33,7 @@ class InferenceClient:
             self.model_port = ModelConfig.class_model_port
             self.translate_bool = False
             logger.addHandler(time_rotating_handler(LogConfig.class_client))
-        
+
     def _prediction_if_queue_is_not_empty(self,stub:InferenceStub):
         # queue 에는 job_key만 담고 실제 데이터(이미지)는 redis 에 담음
         job_key = self.job_manager.get_job()  # None or job_key
@@ -50,6 +50,9 @@ class InferenceClient:
                     logger.info(f"{job_key} is success! pred : {prediction} ")
                     if self.translate_bool:
                         prediction = translate_to_korean(prediction)
+                    else:
+                        if prediction == "": # 발견한 클래스가 아무것도 없다면
+                            prediction = "default" # 기본 클래스
                     self.job_manager.set_result(result_key, prediction)  # job id에 예측값 등록
                     self.mysql_manager.push_left(result_key)
                 else:
@@ -57,6 +60,7 @@ class InferenceClient:
         except:
             logger.info(f"{job_key} is fail! re_register_job")
             self.job_manager.re_register_job(job_key)  # 응답이 지연된 경우나 오지 않은 경우 다시 큐에 등록
+    
     def _loop(self):
         serving_address = f"{self.model_host}:{self.model_port}"
         channel = grpc.insecure_channel(serving_address)
